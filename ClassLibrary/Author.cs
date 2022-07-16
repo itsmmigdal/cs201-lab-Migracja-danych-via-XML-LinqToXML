@@ -1,11 +1,9 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
 
-namespace ClassLibrary
-{
-    public struct Author
-    {
+namespace ClassLibrary {
+    public struct Author {
         public string GivenName { get; }
         public string FamilyName { get; }
         public string Affilation { get; }
@@ -13,8 +11,7 @@ namespace ClassLibrary
         public string Email { get; }
         public bool IncludeInBrowse { get; }
         public bool PrimaryContact { get; }
-        public Author(XElement el, string locale)
-        {
+        public Author(XElement el, string locale) {
             GivenName = el.Element("firstname").Value;
             FamilyName = el.Element("lastname").Value;
             var affiliation = el.Elements("affiliation").Where(e => e.Attribute("locale").Value == locale);
@@ -25,27 +22,23 @@ namespace ClassLibrary
             PrimaryContact = el.Attributes("primary_contact").Any();
         }
 
-        public XElement ToXElement(string locale, XNamespace xNameSpace)
-        {
+        public XElement ToXElement(string locale, XNamespace xNameSpace) {
             var elements = new List<XElement>() {
                 new XElement(xNameSpace + "givenname", new XAttribute("locale", locale), GivenName),
                 new XElement(xNameSpace + "familyname", new XAttribute("locale", locale), FamilyName)
             };
-
-            if (Affilation != "")
-            {
+            
+            if(Affilation != "") {
                 elements.Add(
                     new XElement(xNameSpace + "affiliation", new XAttribute("locale", locale), Affilation)
                 );
             }
-            if (Country != "")
-            {
+            if(Country != "") {
                 elements.Add(
                     new XElement(xNameSpace + "country", new XAttribute("locale", locale), Country)
                 );
             }
-            if (Email != "")
-            {
+            if(Email != "") {
                 elements.Add(
                     new XElement(xNameSpace + "email", new XAttribute("locale", locale), Email)
                 );
@@ -56,8 +49,7 @@ namespace ClassLibrary
                 new XAttribute("include_in_browse", IncludeInBrowse),
                 elements.ToArray()
             );
-            if (PrimaryContact)
-            {
+            if(PrimaryContact) {
                 author.SetAttributeValue("primary_contact", true);
             }
 

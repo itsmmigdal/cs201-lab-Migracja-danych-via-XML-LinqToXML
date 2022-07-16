@@ -1,12 +1,10 @@
-using System;
+ï»¿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
 
-namespace ClassLibrary
-{
-    public struct Article
-    {
+namespace ClassLibrary {
+    public struct Article {
         public string SCHEMA_LOCATION;
         public XAttribute SCHEMA_LOCATION_ATTRIBUTE;
         public string XMLNS_XSI;
@@ -31,19 +29,18 @@ namespace ClassLibrary
         public Identifiaction Identifiaction { get; }
         public string Pages { get; }
         public string[] Keywords;
-        public Article(XElement el)
-        {
+        public Article(XElement el) {
             SCHEMA_LOCATION = "http://pkp.sfu.ca native.xsd";
             XMLNS_XSI = "http://www.w3.org/2001/XMLSchema-instance";
             SCHEMA_LOCATION_ATTRIBUTE =
                 new XAttribute(XNamespace.Get(XMLNS_XSI) + "schemaLocation", SCHEMA_LOCATION);
             XMLNS_XSI_ATTRIBUTE = new XAttribute(XNamespace.Xmlns + "xsi", XMLNS_XSI);
 
-            // W plikach wynikowych nie ma metainformacji zwi¹zanych z
-            // jêzykiem polskim (elementy z atrybutem locale="pl_PL") - rozumiem to jako, ¿e locale jest zawsze en_US
+            // W plikach wynikowych nie ma metainformacji zwiÄ…zanych z
+            // jÄ™zykiem polskim (elementy z atrybutem locale="pl_PL") - rozumiem to jako, Å¼e locale jest zawsze en_US
             LOCALE = "en_US";
             XMLNS = "http://pkp.sfu.ca";
-            XMLNS_NAMESPACE = XMLNS;
+            XMLNS_NAMESPACE = XMLNS; 
             DatePublished = el.Element("date_published").Value;
             DateSubmitted = el.Parent.Parent.Element("date_published").Value;
             Stage = el.Parent.Parent.Attribute("published").Value == "true" ? "published" : "production";
@@ -55,21 +52,17 @@ namespace ClassLibrary
             var locale = LOCALE;
             var title = el.Elements("title").Where(e => e.Attribute("locale").Value == locale).First().Value;
             var titleParts = title.Split(' ');
-            if (titleParts[0] == "The" || titleParts[0] == "A" || titleParts[0] == "An")
-            {
+            if(titleParts[0] == "The" || titleParts[0] == "A" || titleParts[0] == "An") {
                 Prefix = titleParts[0];
                 Title = string.Join(" ", titleParts.Skip(1));
-            }
-            else
-            {
+            } else {
                 Title = title;
                 Prefix = "";
             }
             Abstract = el.Elements("abstract").Where(e => e.Attribute("locale").Value == locale).First().Value;
             LicenseURL = el.Element("permissions").Element("license_url").Value;
             Authors = new List<Author>();
-            foreach (var author in el.Elements("author"))
-            {
+            foreach(var author in el.Elements("author")) {
                 Authors.Add(new Author(author, LOCALE));
             }
             Galley = new Galley(el.Element("galley"), Stage == "published");
@@ -80,14 +73,13 @@ namespace ClassLibrary
                 el.Parent.Parent.Element("number").Value);
             Pages = el.Element("pages").Value;
 
-            Keywords = el.Descendants("subject").Any() ?
+            Keywords = el.Descendants("subject").Any() ? 
                 el.Descendants("subject")
                     .Where(el => el.Attribute("locale").Value == locale)
                     .First().Value.Split("; ") : new string[0];
         }
 
-        public XElement ToXElement()
-        {
+        public XElement ToXElement() {
             var locale = LOCALE;
             var elements = new List<XElement>() {
                 new XElement(
@@ -101,10 +93,9 @@ namespace ClassLibrary
                     new XAttribute("locale", LOCALE),
                     Title
                 ),
-
+                
             };
-            if (Prefix != "")
-            {
+            if(Prefix != "") {
                 elements.Add(
                     new XElement(
                         XMLNS_NAMESPACE + "Prefix",
@@ -113,8 +104,7 @@ namespace ClassLibrary
                     )
                 );
             }
-            if (Abstract != "")
-            {
+            if(Abstract != "") {
                 elements.Add(
                     new XElement(
                         XMLNS_NAMESPACE + "abstract",
@@ -123,8 +113,7 @@ namespace ClassLibrary
                     )
                 );
             }
-            if (LicenseURL != "")
-            {
+            if(LicenseURL != "") {
                 elements.Add(
                     new XElement(
                         XMLNS_NAMESPACE + "licenseUrl",
@@ -133,8 +122,7 @@ namespace ClassLibrary
                 );
             }
             var xmlnsnamespace = XMLNS_NAMESPACE;
-            if (Keywords.Length != 0)
-            {
+            if(Keywords.Length != 0) {
                 elements.Add(
                     new XElement(
                         XMLNS_NAMESPACE + "keywords",
@@ -147,8 +135,7 @@ namespace ClassLibrary
                 );
             }
             var xNameSpace = XMLNS_NAMESPACE;
-            if (Authors.Count() != 0)
-            {
+            if(Authors.Count() != 0) {
                 elements.Add(
                     new XElement(
                         XMLNS_NAMESPACE + "authors",
@@ -161,7 +148,7 @@ namespace ClassLibrary
             elements.Add(
                 Galley.ToXElement(locale, XMLNS_NAMESPACE, SCHEMA_LOCATION_ATTRIBUTE, XMLNS_XSI_ATTRIBUTE, Stage == "published")
             );
-
+            
             elements.Add(
                 Identifiaction.ToXElement(XMLNS_NAMESPACE)
             );
